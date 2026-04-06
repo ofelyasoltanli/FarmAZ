@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: farmaz_db
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - farmaz_net
+
+  backend:
+    build:
+      context: ./FarmAZ.Api
+      dockerfile: Dockerfile
+    container_name: farmaz_backend
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=db;Database=FarmAZDb;User Id=sa;Password=YourStrong!Passw0rd;"
+      JwtSettings__SecretKey: "SuperSecretKeyForFarmAZBackend123!"
+    depends_on:
+      - db
+    ports:
+      - "5001:5001"
+    networks:
+      - farmaz_net
+
+  frontend:
+    build:
+      context: ./FarmAZ.Client
+      dockerfile: Dockerfile
+    container_name: farmaz_frontend
+    depends_on:
+      - backend
+    ports:
+      - "5000:5000"
+    networks:
+      - farmaz_net
+
+networks:
+  farmaz_net:
+    driver: bridge

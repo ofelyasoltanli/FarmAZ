@@ -1,0 +1,6 @@
+@FarmAZ_HostAddress = http://localhost:5286
+
+GET {{FarmAZ_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
