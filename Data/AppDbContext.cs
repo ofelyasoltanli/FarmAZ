@@ -16,26 +16,26 @@ namespace FarmAZ.Data
         public DbSet<OrderItem> OrderItems{get; set;}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-{
-    modelBuilder.Entity<OrderItem>()
-        .HasOne(oi => oi.Product)
-        .WithMany()
-        .HasForeignKey(oi => oi.ProductId)
-        .OnDelete(DeleteBehavior.NoAction);  
+        {
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Product)
+                .WithMany()
+                .HasForeignKey(oi => oi.ProductId)
+                .OnDelete(DeleteBehavior.NoAction);  
 
-    modelBuilder.Entity<OrderItem>()
-        .HasOne(oi => oi.Order)
-        .WithMany(o => o.Items)
-        .HasForeignKey(oi => oi.OrderId)
-        .OnDelete(DeleteBehavior.Cascade);
-}
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Order)
+                .WithMany(o => o.Items)
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-{
-    if (!optionsBuilder.IsConfigured)
-    {
-        optionsBuilder.UseSqlServer("Server=localhost,1433;Database=FarmAZDb;User Id=sa;Password=FarmAZ@123;TrustServerCertificate=True");
-    }
-}
-
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseNpgsql("Host=postgres.railway.internal;Port=5432;Database=railway;Username=postgres;Password=LOagAUWjngewvNJVTSbSVteeUMHweAVL");
+            }
+        }
     }
 }
