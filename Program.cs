@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen();
 
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Repository
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -80,4 +80,7 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.Run();
+
+// Railway PORT
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5286";
+app.Run($"http://0.0.0.0:{port}");
