@@ -34,8 +34,7 @@ namespace FarmAZ.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql("Host=postgres.railway.internal;Port=5432;Database=railway;Username=postgres;Password=LOagAUWjngewvNJVTSbSVteeUMHweAVL");
-            }
+optionsBuilder.UseNpgsql("Host=postgres.railway.internal;Port=5432;Database=railway;Username=postgres;Password=dwGZauFRsZkFEyBhdiCsmcqgMHZGSDZQ");            }
         }
     }
 }
