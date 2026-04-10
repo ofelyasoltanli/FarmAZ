@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen();
 
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Repository
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -37,6 +37,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 
 // JWT
 var key = Encoding.ASCII.GetBytes("SuperSecretKeyForFarmAZBackend123!");
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -66,21 +67,41 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Seed Data
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    SeedData.Initialize(db);
+
+    try
+    {
+        Console.WriteLine("Checking DB connection...");
+
+        db.Database.SetCommandTimeout(60);
+
+       
+        db.Database.Migrate();
+
+        Console.WriteLine("DB Migration SUCCESS");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("DB INIT ERROR:");
+        Console.WriteLine(ex.Message);
+    }
 }
 
+
+// Middleware order 
 app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseSwagger();
 app.UseSwaggerUI();
+
 app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
-// Railway PORT
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5286";
-app.Run($"http://0.0.0.0:{port}");
+app.Run();

@@ -3,17 +3,14 @@ using FarmAZ.Entities;
 
 namespace FarmAZ.Data
 {
-    public class AppDbContext: DbContext
+    public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base (options){}
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<User> Users{get; set;}
-
-        public DbSet<Order> Orders{get; set;}
-
-        public DbSet<Product> Products{get; set;}
-
-        public DbSet<OrderItem> OrderItems{get; set;}
+        public DbSet<User> Users { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,7 +18,7 @@ namespace FarmAZ.Data
                 .HasOne(oi => oi.Product)
                 .WithMany()
                 .HasForeignKey(oi => oi.ProductId)
-                .OnDelete(DeleteBehavior.NoAction);  
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Order)
@@ -34,7 +31,10 @@ namespace FarmAZ.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-optionsBuilder.UseNpgsql("Host=postgres.railway.internal;Port=5432;Database=railway;Username=postgres;Password=dwGZauFRsZkFEyBhdiCsmcqgMHZGSDZQ");            }
+                optionsBuilder.UseSqlServer(
+                    "Server=localhost;Database=FarmAZDb;User Id=sa;Password=12345;"
+                );
+            }
         }
     }
 }
