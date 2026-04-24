@@ -1,28 +1,41 @@
 # FarmAZ API
 
-FarmAZ is a simple RESTful API built for managing agricultural products and orders. Farmers can list their products, and customers can place orders based on available listings. The project is built with ASP.NET Core and follows a clean and practical backend structure.
+FarmAZ is a backend system for a farm marketplace platform that connects farmers directly with customers. The platform enables product listing, order processing, and user management in a scalable and secure environment.
 
-## Features
+The system is designed with real-world backend architecture principles, focusing on maintainability, security, and extensibility.
 
-* User registration and login with JWT authentication
-* Product management (create, update, delete, read)
-* Order management system
-* Secure password hashing using BCrypt
-* Distance calculation using the Haversine formula
-* Global error handling using middleware
-* SQL Server database running in Docker
-* Swagger UI for API testing and documentation
+## Key Features
 
-## Tech Stack
+* Secure authentication and authorization using JWT
+* Role-based access control (Farmer, Customer, Admin)
+* Product lifecycle management with ownership validation
+* Order processing system with user-specific tracking
+* Secure credential storage using BCrypt hashing
+* Geolocation-based filtering using distance calculation
+* Centralized exception handling via middleware
+* Docker-based database deployment (SQL Server)
+* API documentation with Swagger (OpenAPI)
 
-* ASP.NET Core Web API
+## Architecture Overview
+
+FarmAZ is built using a clean layered architecture to ensure separation of concerns and scalability:
+
+* **API Layer (Controllers)** → Handles HTTP requests and responses
+* **Application Layer (Services)** → Contains business logic
+* **Data Access Layer (Repositories)** → Manages database operations
+* **Domain Layer (Entities)** → Represents core data models
+* **Infrastructure Layer** → External services and configurations
+
+## Technology Stack
+
+* ASP.NET Core Web API (.NET 8)
 * Entity Framework Core
-* SQL Server
+* SQL Server (Dockerized)
 * JWT Authentication
 * BCrypt.Net
 * Swagger / OpenAPI
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 FarmAZ/
@@ -40,101 +53,100 @@ FarmAZ/
 
 ### Prerequisites
 
-* .NET SDK 8
+* .NET 8 SDK
 * Docker Desktop
 
-## How to Run
+## Installation & Setup
 
-### 1. Clone the repository
+### 1. Clone repository
 
 ```bash
 git clone https://github.com/ofelyasoltanli/FarmAZ.git
 cd FarmAZ
 ```
 
-### 2. Start SQL Server using Docker
+### 2. Start database (SQL Server via Docker)
 
 ```bash
 docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=FarmAZ@123" -p 1434:1433 --name farmaz-sql -d mcr.microsoft.com/mssql/server:2022-latest
 ```
 
-If the container already exists:
+If already created:
 
 ```bash
 docker start farmaz-sql
 ```
 
-### 3. Configure connection string
+### 3. Configure environment
 
 Update `appsettings.json`:
 
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=localhost,1434;Database=FarmAZDb;User Id=sa;Password=FarmAZ@123;TrustServerCertificate=True;"
+  "DefaultConnection": "Server=localhost,1434;Database=FarmAZDb;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
 }
 ```
 
-### 4. Run the application
+> In production environments, sensitive values should be managed through environment variables.
+
+### 4. Run application
 
 ```bash
 dotnet run
 ```
 
-### 5. Open Swagger UI
+### 5. API Documentation
+
+Once running, Swagger UI is available at:
 
 ```
-http://localhost:5286/swagger
+https://localhost:<port>/swagger
 ```
-
-## 📡 API Endpoints
-
-### Authentication
-
-| Method | Endpoint           | Description                 |
-| ------ | ------------------ | --------------------------- |
-| POST   | /api/Auth/register | Register a new user         |
-| POST   | /api/Auth/login    | Login and receive JWT token |
-
-### Products
-
-| Method | Endpoint           | Description          |
-| ------ | ------------------ | -------------------- |
-| GET    | /api/Products      | Get all products     |
-| POST   | /api/Products      | Create a new product |
-| GET    | /api/Products/{id} | Get product by ID    |
-
-### Orders
-
-| Method | Endpoint    | Description        |
-| ------ | ----------- | ------------------ |
-| GET    | /api/Orders | Get user orders    |
-| POST   | /api/Orders | Create a new order |
 
 ## Authentication Flow
 
-1. Register via `/api/Auth/register`
-2. Login via `/api/Auth/login`
-3. Copy the JWT token
-4. Click **Authorize** in Swagger
-5. Enter:
+1. Register a user → `/api/Auth/register`
+2. Login → `/api/Auth/login`
+3. Receive JWT token
+4. Authorize in Swagger using:
 
 ```
 Bearer YOUR_TOKEN
 ```
 
-## Future Improvements
+## API Endpoints Overview
 
-* Pagination and filtering
-* Role-based authorization (Admin / User)
-* Image upload with Cloudinary
-* Redis caching
-* Cloud deployment (Azure or AWS)
+### Authentication
 
-## About This Project
+* POST `/api/Auth/register`
+* POST `/api/Auth/login`
 
-This project was built to practice real-world backend development with ASP.NET Core. It focuses on clean architecture, authentication, and database management.
+### Products
 
-## License
+* GET `/api/Products`
+* POST `/api/Products`
+* GET `/api/Products/{id}`
 
-This project is open source and available under the MIT License.
+### Orders
 
+* POST `/api/Orders`
+* GET `/api/Orders`
+
+## System Design Principles
+
+* Separation of concerns across layers
+* Scalable service-oriented structure
+* Secure authentication flow with token-based access
+* Extensible architecture for future microservices migration
+
+## Planned Enhancements
+
+* Cloud-based image storage integration
+* Payment gateway integration
+* Advanced order lifecycle management
+* Pagination & filtering optimization
+* Deployment on cloud infrastructure (Azure / AWS)
+
+##  License
+
+This project is licensed under the MIT License.
