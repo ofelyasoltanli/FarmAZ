@@ -10,76 +10,70 @@ namespace FarmAZ.Services.Implementations
     {
         private readonly IProductRepository _repo;
 
-        public ProductService(IProductRepository repo)=> _repo=repo;
+        public ProductService(IProductRepository repo) => _repo = repo;
 
-         public async Task<ProductResponseDto> CreateProductAsync(CreateProductDto dto, int userId)
-    {
-        var product = new Product
+        public async Task<ProductResponseDto> CreateProductAsync(CreateProductDto dto, int userId)
         {
-            Name = dto.Name,
-            Description = dto.Description,
-            Price = dto.Price,
-            City = dto.City,
-            Address = dto.Address,
-            Latitude = dto.Latitude,
-            Longitude = dto.Longitude,
-            ImageUrl = dto.ImageUrl,
-            UserId = userId
-        };
-        await _repo.AddAsync(product);
-
-        return new ProductResponseDto
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Description = product.Description,
-            Price = product.Price,
-            City = product.City,
-            Address = product.Address,
-            Latitude = product.Latitude,
-            Longitude = product.Longitude,
-            ImageUrl = product.ImageUrl,
-            FarmerName = product.User?.FullName??""
-        };
-    }
-
-      public async Task<List<ProductResponseDto>> GetAllAsync()
-        {
-            var products=await _repo.GetAllAsync();
-
-            return products.Select(p=>new ProductResponseDto
+            var product = new Product
             {
-             Id = p.Id,
-            Name = p.Name,
-            Description = p.Description,
-            Price = p.Price,
-            City = p.City,
-            Address = p.Address,
-            Latitude = p.Latitude,
-            Longitude = p.Longitude,
-            ImageUrl = p.ImageUrl,
-            FarmerName = p.User?.FullName??""
-        }).ToList();
+                Name        = dto.Name,
+                Description = dto.Description,
+                Price       = dto.Price,
+                City        = dto.City,
+                Address     = dto.Address,
+                Latitude    = dto.Latitude,
+                Longitude   = dto.Longitude,
+                ImageUrl    = dto.ImageUrl,
+                UserId      = userId
+            };
+
+            await _repo.AddAsync(product);
+
+          
+            var created = await _repo.GetByIdAsync(product.Id)
+                ?? throw new KeyNotFoundException("Product not found after creation.");
+
+            return MapToDto(created);
         }
 
-         public async Task<ProductResponseDto> GetByIdAsync(int id)
-    {
-        var p = await _repo.GetByIdAsync(id);
-        if (p == null) throw new Exception("Product not found");
-
-        return new ProductResponseDto
+        public async Task<List<ProductResponseDto>> GetAllAsync()
         {
-            Id = p.Id,
-            Name = p.Name,
-            Description = p.Description,
-            Price = p.Price,
-            City = p.City,
-            Address = p.Address,
-            Latitude = p.Latitude,
-            Longitude = p.Longitude,
-            ImageUrl = p.ImageUrl,
-            FarmerName = p.User?.FullName??""
-        };
+            var products = await _repo.GetAllAsync();
+            return products.Select(MapToDto).ToList();
         }
+
+        public async Task<ProductResponseDto> GetByIdAsync(int id)
+        {
+            var product = await _repo.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException($"Product with id {id} not found.");
+
+            return MapToDto(product);
+        }
+
+        private static ProductResponseDto MapToDto(Product p) => new()
+        {
+            Id          = p.Id,
+            Name        = p.Name,
+            Description = p.Description,
+            Price       = p.Price,
+            City        = p.City,
+            Address     = p.Address,
+            Latitude    = p.Latitude,
+            Longitude   = p.Longitude,
+            ImageUrl    = p.ImageUrl,
+            FarmerName  = p.User?.FullName ?? ""
+        };
+    
+    public async Task<IEnumerable<ProductResponseDto>> GetNearbyAsync(
+    double userLat, double userLng, double radiusKm)
+{
+    var products = await _repo.GetAllAsync();
+
+    return products
+        .Where(p => DistanceCalculator.CalculateDistance(
+            userLat, userLng, p.Latitude, p.Longitude) <= radiusKm)
+        .Select(MapToDto)
+        .ToList();
+}
     }
 }

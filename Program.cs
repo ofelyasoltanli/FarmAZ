@@ -1,5 +1,5 @@
 using FarmAZ.Data;
-using FarmAZ.Helpers;
+using FarmAZ.Middlewares;
 using FarmAZ.Repositories.Implementations;
 using FarmAZ.Repositories.Interfaces;
 using FarmAZ.Services.Implementations;
@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using FarmAZ.Middlewares;
 using FarmAZ.Repositories;
 using FarmAz.Repositories;
 
@@ -25,15 +24,22 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Repository
+
+// Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<ICardRepository, CardRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ICardService, CardService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // JWT
 var key = Encoding.ASCII.GetBytes("SuperSecretKeyForFarmAZBackend123!");
@@ -67,20 +73,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-
+// DB Migration
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
     try
     {
         Console.WriteLine("Checking DB connection...");
-
         db.Database.SetCommandTimeout(60);
-
-       
         db.Database.Migrate();
-
         Console.WriteLine("DB Migration SUCCESS");
     }
     catch (Exception ex)
@@ -90,8 +91,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
-// Middleware order 
+// Middleware
 app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseSwagger();

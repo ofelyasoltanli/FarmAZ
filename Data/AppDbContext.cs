@@ -11,6 +11,10 @@ namespace FarmAZ.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Card> Cards { get; set; }           
+        public DbSet<CardItem> CardItems { get; set; }   
+        public DbSet<Notification> Notifications { get; set; } 
+        public DbSet<Payment> Payments { get; set; }     
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,6 +29,22 @@ namespace FarmAZ.Data
                 .WithMany(o => o.Items)
                 .HasForeignKey(oi => oi.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CardItem>()
+                .HasOne(ci => ci.Card)
+                .WithMany(c => c.Items)
+                .HasForeignKey(ci => ci.CardId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CardItem>()
+                .HasOne(ci => ci.Product)
+                .WithMany()
+                .HasForeignKey(ci => ci.ProductId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Amount)
+             .HasPrecision(18, 2);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
